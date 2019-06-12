@@ -1,9 +1,10 @@
 #! python3
 
 import datetime
+import subprocess
 
 from PySide2.QtCore import Qt, QPoint, QSize, QRect, QTimer
-from PySide2.QtGui import QScreen
+from PySide2.QtGui import QScreen, QMouseEvent
 from PySide2.QtWidgets import QApplication, QLabel, QHBoxLayout, QFrame
 
 from bspwm import State
@@ -43,6 +44,31 @@ class Workspaces(QLabel):
                               for d in monitor.desktops()))
 
 
+class Tray(QLabel):
+    COMMAND = ["trayer",
+               "--edge", "bottom",
+               "--align", "right",
+               "--height", "28",
+               "--tint", "0x303030",
+               "--transparent", "true", "--alpha", "10",
+               "--expand", "true",
+               "--padding", "4",
+               "--distance", "-32",
+               "--distancefrom", "bottom"]
+
+    def __init__(self):
+        super().__init__(text="◨")
+        self.process = None
+
+    def mousePressEvent(self, ev: QMouseEvent):
+        if ev.button() == Qt.LeftButton:
+            if self.process is None:
+                self.process = subprocess.Popen(self.COMMAND)
+            else:
+                self.process.kill()
+                self.process = None
+
+
 class Clock(QLabel):
     TIME_FORMAT = f'%Y-%m-%d <span style="color: {AUX_COLOR};">W%W</span> <b>%H:%M:%S</b>'
 
@@ -76,7 +102,7 @@ class Window(QFrame):
         self.move(screen_rect.left(), screen_rect.bottom() - BAR_HEIGHT)
 
         self.setStyleSheet(STYLE_SHEET)
-        self.setProperty("windowOpacity", 0.7)
+        self.setProperty("windowOpacity", 0.8)
 
         layout = QHBoxLayout(self)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -88,13 +114,13 @@ class Window(QFrame):
 
         layout.addStretch(5)
 
-        tray = QLabel("Δ", self)
-        layout.addWidget(tray)
+        clock = Clock()
+        layout.addWidget(clock)
 
         layout.addSpacing(8)
 
-        clock = Clock()
-        layout.addWidget(clock)
+        tray = Tray()
+        layout.addWidget(tray)
 
         layout.addSpacing(8)
 
