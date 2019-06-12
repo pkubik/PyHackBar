@@ -7,7 +7,7 @@ from PySide2.QtCore import Qt, QPoint, QSize, QRect, QTimer
 from PySide2.QtGui import QScreen, QMouseEvent
 from PySide2.QtWidgets import QApplication, QLabel, QHBoxLayout, QFrame
 
-from bspwm import State
+from pyhackbar.bspwm import State
 
 BAR_HEIGHT = 32
 AUX_COLOR = "orange"
