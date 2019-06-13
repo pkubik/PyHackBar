@@ -56,14 +56,15 @@ class Tray(QLabel):
                "--distance", "-32",
                "--distancefrom", "bottom"]
 
-    def __init__(self):
+    def __init__(self, monitor_number: int):
         super().__init__(text="◨")
+        self.monitor_number = monitor_number
         self.process = None
 
     def mousePressEvent(self, ev: QMouseEvent):
         if ev.button() == Qt.LeftButton:
             if self.process is None:
-                self.process = subprocess.Popen(self.COMMAND)
+                self.process = subprocess.Popen(self.COMMAND + ["--monitor", str(self.monitor_number)])
             else:
                 self.process.kill()
                 self.process = None
@@ -86,9 +87,10 @@ class Clock(QLabel):
 
 
 class Window(QFrame):
-    def __init__(self, screen: QScreen, parent=None):
+    def __init__(self, screen_number: int, screen: QScreen, parent=None):
         super().__init__(parent)
 
+        self.screen_number = screen_number
         self.screen = screen
         self.screen_geo_id = f'{screen.geometry().x()},{screen.geometry().y()}'
         self.setWindowFlags(Qt.BypassWindowManagerHint)
@@ -119,7 +121,7 @@ class Window(QFrame):
 
         layout.addSpacing(8)
 
-        tray = Tray()
+        tray = Tray(self.screen_number)
         layout.addWidget(tray)
 
         layout.addSpacing(8)
@@ -132,8 +134,11 @@ def main():
 
     app = QApplication(sys.argv)
 
-    for screen in app.screens():
-        window = Window(screen)
+    windows = {}
+    for i, screen in enumerate(app.screens()):
+        name = screen.name()
+        print(name)
+        windows[name] = Window(i, screen)
     sys.exit(app.exec_())
 
 
