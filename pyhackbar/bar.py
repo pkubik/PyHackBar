@@ -3,11 +3,12 @@
 import datetime
 import subprocess
 
+from PySide2 import QtGui
 from PySide2.QtCore import Qt, QPoint, QSize, QRect, QTimer
 from PySide2.QtGui import QScreen, QMouseEvent
 from PySide2.QtWidgets import QApplication, QLabel, QHBoxLayout, QFrame
 
-from pyhackbar.bspwm import State
+from pyhackbar.bspwm import State, next_workspace, prev_workspace
 
 BAR_HEIGHT = 32
 AUX_COLOR = "orange"
@@ -42,6 +43,14 @@ class Workspaces(QLabel):
         monitor = state.monitor_by_geo_id(self.screen_geo_id)
         self.setText(" ".join(d.name if not d.focused else f'<span style="color: {AUX_COLOR};">{d.name}</span>'
                               for d in monitor.desktops()))
+
+    def wheelEvent(self, event: QtGui.QWheelEvent):
+        if event.angleDelta().y() < 0:
+            print("Next desktop")
+            next_workspace()
+        else:
+            print("Previous desktop")
+            prev_workspace()
 
 
 class Tray(QLabel):

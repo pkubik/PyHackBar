@@ -62,3 +62,11 @@ class State:
         thread = Thread(
             target=cls.subscribe, name='bspwm-subscribtion', args=[callback])
         thread.start()
+
+
+def next_workspace():
+    subprocess.Popen("bspc desktop -f next".split())
+
+
+def prev_workspace():
+    subprocess.Popen("bspc desktop -f prev".split())
